@@ -10,7 +10,7 @@ func isItemDefaultSelected(item Ranking, me string) string {
 	return "false"
 }
 
-templ page(options []Ranking, previousResult int, me *string) {
+templ page(options []Ranking, previousResult int, me *string, tournamentOptions []TournamentOption, selectedTournament *string) {
 	<body>
 		<div>
 			if previousResult != 0 {
@@ -24,6 +24,13 @@ templ page(options []Ranking, previousResult int, me *string) {
 					<option value={strconv.Itoa(item.Id)} if strconv.Itoa(item.Id) == *me {
 						selected
 					} >{ parseName(item.Name) }</option>
+				}
+				</select>
+				<select id="tournament-select" form="form" name="tournament">
+				for _, tournament := range tournamentOptions {
+					<option value={tournament.Id} if tournament.Id == *selectedTournament {
+						selected
+					} >{ tournament.Name }</option>
 				}
 				</select>
 				<div id="formFields">

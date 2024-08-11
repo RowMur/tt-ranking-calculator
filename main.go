@@ -71,9 +71,93 @@ var losePointsTable = []PointsTable{
 	{pointsDiffLowerBound: -10000, values: []int{0, 0, 0, 0, 0}},
 }
 
+func getValIndexFromMultiplier(multiplier float32) int {
+	switch multiplier {
+	case 0.5:
+		return 0
+	case 0.75:
+		return 1
+	case 1:
+		return 2
+	case 1.25:
+		return 3
+	case 1.5:
+		return 4
+	case 1.75:
+		return 5
+	case 2:
+		return 6
+	case 2.25:
+		return 7
+	case 2.50:
+		return 8
+	case 3.0:
+		return 9
+	}
+
+	return -1
+}
+
 type Result struct {
 	opponentId int
 	result     string
+}
+
+type TournamentOption struct {
+	Id         string
+	Name       string
+	Multiplier float32
+}
+
+var tournamentOptions = map[string]TournamentOption{
+	"olympics":                        {Id: "olympics", Name: "Olympic Games", Multiplier: 3.0},
+	"worlds":                          {Id: "worlds", Name: "World Championships", Multiplier: 3.0},
+	"europe-champs-senior":            {Id: "europe-champs-senior", Name: "European Championships (Senior)", Multiplier: 2.75},
+	"europe-games":                    {Id: "europe-games", Name: "European Games", Multiplier: 2.5},
+	"olympic-qualification":           {Id: "olympic-qualification", Name: "Olympic Qualification Tournaments", Multiplier: 2.5},
+	"commonwealth":                    {Id: "commonwealth", Name: "Commonwealth Games", Multiplier: 2.5},
+	"euro-asia":                       {Id: "euro-asia", Name: "Euro-Asia Matches", Multiplier: 2.5},
+	"euro-16":                         {Id: "euro-16", Name: "European Top 16", Multiplier: 2.5},
+	"euro-10-junior":                  {Id: "euro-10-junior", Name: "European Top 10 (Juniors)", Multiplier: 2.5},
+	"wtt-senior":                      {Id: "wtt-senior", Name: "WTT Senior Events", Multiplier: 2.5},
+	"ittf-world-team":                 {Id: "ittf-world-team", Name: "ITTF World Team Cup", Multiplier: 2.5},
+	"ittf-world":                      {Id: "ittf-world", Name: "ITTF World Cup", Multiplier: 2.5},
+	"euro-champs-youth":               {Id: "euro-champs-youth", Name: "European Championships (Youth)", Multiplier: 2.5},
+	"commonwealth-championships":      {Id: "commonwealth-championships", Name: "Commonwealth Championships", Multiplier: 2.25},
+	"euro-champs-quali":               {Id: "euro-champs-quali", Name: "European Championships Qualification Matches", Multiplier: 2.25},
+	"wtt-feeder":                      {Id: "wtt-feeder", Name: "WTT Feeder Series", Multiplier: 2.25},
+	"english-senior-champs":           {Id: "english-senior-champs", Name: "English Senior National Championships", Multiplier: 2.25},
+	"english-age-champs":              {Id: "english-age-champs", Name: "English Age-Group National Championships", Multiplier: 2},
+	"foreign-open":                    {Id: "foreign-open", Name: "Other Foreign Open Championships", Multiplier: 2},
+	"wtt-youth":                       {Id: "wtt-youth", Name: "WTT Youth Events", Multiplier: 2},
+	"cadet-six":                       {Id: "cadet-six", Name: "Cadet Six Nations", Multiplier: 2},
+	"senior-champs-quali":             {Id: "senior-champs-quali", Name: "Senior National Championships Qualifier", Multiplier: 2},
+	"4-star":                          {Id: "4-star", Name: "4 Star Open Tournaments (Senior)", Multiplier: 2},
+	"national-open":                   {Id: "national-open", Name: "National Open Tournaments (Senior)", Multiplier: 2},
+	"4-star-non-senior":               {Id: "4-star-non-senior", Name: "4 Star Open Tournaments (Non-Senior)", Multiplier: 1.75},
+	"national-open-non-senior":        {Id: "national-open-non-senior", Name: "National Open Tournaments (Non-Senior)", Multiplier: 1.75},
+	"satelite-gp":                     {Id: "satelite-gp", Name: "Satellite Grand Prix", Multiplier: 1.75},
+	"13-15-19-national-series":        {Id: "13-15-19-national-series", Name: "U13, U15, U19 National Series", Multiplier: 1.75},
+	"21-national-cup":                 {Id: "21-national-cup", Name: "U21 National Cup", Multiplier: 1.75},
+	"international-friendly":          {Id: "international-friendly", Name: "Friendly International Matches", Multiplier: 1.5},
+	"3-star":                          {Id: "3-star", Name: "3 Star Open Tournaments", Multiplier: 1.5},
+	"2-star":                          {Id: "2-star", Name: "2 Star Open Tournaments", Multiplier: 1.5},
+	"zonal-opens":                     {Id: "zonal-opens", Name: "Zonal Open Tournaments", Multiplier: 1.5},
+	"county-premier":                  {Id: "county-premier", Name: "County Championships (Premier)", Multiplier: 1.5},
+	"vetts-regional":                  {Id: "vetts-regional", Name: "VETTS Regional Tournaments", Multiplier: 1.5},
+	"elcc-finals":                     {Id: "elcc-finals", Name: "English Leagues Cup Competition - Finals", Multiplier: 1.5},
+	"vetts-rating":                    {Id: "vetts-rating", Name: "VETTS Rating Tournaments", Multiplier: 1.5},
+	"home-nations-cadet-junior":       {Id: "home-nations-cadet-junior", Name: "Home Nations Cadet & Junior", Multiplier: 1.5},
+	"youth-vetts-womens-bcl-prem":     {Id: "youth-vetts-womens-bcl-prem", Name: "Youth BCL, Vetts BCL & Women's BCL Premier Divisions", Multiplier: 1.5},
+	"senior-bcl-champs":               {Id: "senior-bcl-champs", Name: "Senior BCL Championship Division", Multiplier: 1.5},
+	"county-champs":                   {Id: "county-champs", Name: "County Championships", Multiplier: 1.25},
+	"local-open":                      {Id: "local-open", Name: "Local Open Tournaments", Multiplier: 1.25},
+	"youth-vetts-womens-bcl-non-prem": {Id: "youth-vetts-womens-bcl-non-prem", Name: "Youth BCL, Vetts BCL, Women's BCL", Multiplier: 1.25},
+	"senior-bcl":                      {Id: "senior-bcl", Name: "Senior BCL", Multiplier: 1.25},
+	"elcc":                            {Id: "elcc", Name: "English Leagues Cup Competition", Multiplier: 1},
+	"jbl":                             {Id: "jbl", Name: "Junior British Clubs League", Multiplier: 1},
+	"cbl":                             {Id: "cbl", Name: "Cadet British Clubs League", Multiplier: 1},
+	"1-star":                          {Id: "1-star", Name: "1 Star Open Tournaments", Multiplier: 0.75},
 }
 
 func parseName(name string) string {
@@ -137,6 +221,9 @@ func handler(rankingData RankingData) http.HandlerFunc {
 			}
 		}
 
+		tournamentKey := r.URL.Query().Get("tournament")
+		valueIndex := getValIndexFromMultiplier(tournamentOptions[tournamentKey].Multiplier)
+
 		totalPoints := 0
 		for _, result := range results {
 			for _, ranking := range rankingData.Data {
@@ -156,7 +243,11 @@ func handler(rankingData RankingData) http.HandlerFunc {
 
 				for _, pointsTableRow := range pointsTable {
 					if pointsDiff >= pointsTableRow.pointsDiffLowerBound {
-						pointsEarned := pointsTableRow.values[3]
+						appropriateValIndex := valueIndex
+						if len(pointsTableRow.values) <= valueIndex {
+							appropriateValIndex = len(pointsTableRow.values) - 1
+						}
+						pointsEarned := pointsTableRow.values[appropriateValIndex]
 						totalPoints += pointsEarned
 						break
 					}
@@ -170,7 +261,25 @@ func handler(rankingData RankingData) http.HandlerFunc {
 			return firstName < secondName
 		})
 
-		component := page(rankingData.Data, totalPoints, &meId)
+		tournaments := []TournamentOption{}
+		for _, tournament := range tournamentOptions {
+			tournaments = append(tournaments, tournament)
+		}
+		sort.Slice(tournaments, func(i, j int) bool {
+			firstTournament := tournaments[i]
+			secondTournament := tournaments[j]
+			if firstTournament.Multiplier < secondTournament.Multiplier {
+				return true
+			}
+
+			if firstTournament.Multiplier > secondTournament.Multiplier {
+				return false
+			}
+
+			return strings.Compare(firstTournament.Name, secondTournament.Name) < 0
+		})
+
+		component := page(rankingData.Data, totalPoints, &meId, tournaments, &tournamentKey)
 		templ.Handler(component).ServeHTTP(w, r)
 	}
 }
