@@ -13,7 +13,6 @@ import (
 )
 
 const dataFile = "data.json"
-const mePoints = 517
 
 type Ranking struct {
 	Id     int    `json:"id"`
@@ -129,6 +128,15 @@ func handler(rankingData RankingData) http.HandlerFunc {
 			results = append(results, Result{opponentId: opponentId, result: winOrLoss})
 		}
 
+		meId := r.URL.Query().Get("me")
+		mePoints := 0
+		for _, ranking := range rankingData.Data {
+			if strconv.Itoa(ranking.Id) == meId {
+				mePoints = ranking.Points
+				break
+			}
+		}
+
 		totalPoints := 0
 		for _, result := range results {
 			for _, ranking := range rankingData.Data {
@@ -156,28 +164,13 @@ func handler(rankingData RankingData) http.HandlerFunc {
 			}
 		}
 
-		people := []struct {
-			id   string
-			name string
-		}{}
-		for _, ranking := range rankingData.Data {
-			people = append(people,
-				struct {
-					id   string
-					name string
-				}{
-					id:   fmt.Sprintf("%d", ranking.Id),
-					name: parseName(ranking.Name),
-				},
-			)
-		}
-		sort.Slice(people, func(i, j int) bool {
-			firstName := strings.ToLower(people[i].name)
-			secondName := strings.ToLower(people[j].name)
+		sort.Slice(rankingData.Data, func(i, j int) bool {
+			firstName := strings.ToLower(rankingData.Data[i].Name)
+			secondName := strings.ToLower(rankingData.Data[j].Name)
 			return firstName < secondName
 		})
 
-		component := page(people, &totalPoints)
+		component := page(rankingData.Data, totalPoints, &meId)
 		templ.Handler(component).ServeHTTP(w, r)
 	}
 }

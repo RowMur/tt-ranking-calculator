@@ -2,15 +2,30 @@ package main
 
 import "strconv"
 
-templ page(options []struct{id string; name string}, previousResult *int) {
+func isItemDefaultSelected(item Ranking, me string) string {
+	if strconv.Itoa(item.Id) == me {
+		return "selected"
+	}
+
+	return "false"
+}
+
+templ page(options []Ranking, previousResult int, me *string) {
 	<body>
 		<div>
-			if previousResult != nil {
+			if previousResult != 0 {
 				<p>
-					Previous result: {strconv.Itoa(*previousResult)}
+					Previous result: {strconv.Itoa(previousResult)}
 				</p>
 			}
 			<form id="form">
+				<select id="me-select" form="form" name="me">
+				for _, item := range options {
+					<option value={strconv.Itoa(item.Id)} if strconv.Itoa(item.Id) == *me {
+						selected
+					} >{ parseName(item.Name) }</option>
+				}
+				</select>
 				<div id="formFields">
 					@opponent(options)
 				</div>
@@ -43,20 +58,19 @@ templ page(options []struct{id string; name string}, previousResult *int) {
 			clonedElementInDom.querySelector("label").for = "win" + key;
 			clonedElementInDom.querySelector("select").name = "opponent" + key;
 			clonedElementInDom.querySelector("select").id = "opponent-select" + key;
-
 		}
 	</script>
 }
 
-templ dropdown(items []struct{id string; name string}) {
+templ dropdown(items []Ranking) {
 	<select id="opponent-select0" form="form" name="opponent0">
 	for _, item := range items {
-			<option value={item.id}>{ item.name }</option>
+			<option value={strconv.Itoa(item.Id)}>{ parseName(item.Name) }</option>
 	}	
 	</select>
 }
 
-templ opponent(options []struct{id string; name string}) {
+templ opponent(options []Ranking) {
 	<fieldset id="opponent">
 		@dropdown(options)
 		<input type="checkbox" name="win0" id="win0" />
