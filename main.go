@@ -3,8 +3,13 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"os"
+	"sort"
+	"strconv"
 	"strings"
+
+	"github.com/a-h/templ"
 )
 
 const dataFile = "data.json"
@@ -72,13 +77,6 @@ type Result struct {
 	result     string
 }
 
-var results = []Result{
-	{opponentId: 3939203, result: "win"},
-	{opponentId: 3939184, result: "loss"},
-	{opponentId: 3938802, result: "loss"},
-	{opponentId: 3939379, result: "win"},
-}
-
 func parseName(name string) string {
 	nameSplitByBracket := strings.Split(name, "(")
 	trimmedName := strings.TrimSpace(nameSplitByBracket[0])
@@ -99,33 +97,87 @@ func main() {
 		panic(err)
 	}
 
-	totalPoints := 0
-	for _, result := range results {
-		for _, ranking := range rankingData.Data {
-			if ranking.Id != result.opponentId {
-				continue
+	http.Handle("/favicon.ico", http.NotFoundHandler())
+	http.Handle("/", handler(rankingData))
+	fmt.Println("Listening on :8080")
+	http.ListenAndServe(":8080", nil)
+}
+
+func handler(rankingData RankingData) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		results := []Result{}
+		for i := 0; true; i++ {
+			opponentKey := fmt.Sprintf("opponent%d", i)
+			winKey := fmt.Sprintf("win%d", i)
+
+			opponent := r.URL.Query().Get(opponentKey)
+			if opponent == "" {
+				break
+			}
+			opponentId, err := strconv.Atoi(opponent)
+			if err != nil {
+				w.Write([]byte(fmt.Sprintf("failed to parse opponent ID: %v", err)))
+				return
 			}
 
-			opponentsPoints := ranking.Points
-			pointsDiff := mePoints - opponentsPoints
-
-			var pointsTable []PointsTable
-			if result.result == "win" {
-				pointsTable = winPointsTable
-			} else {
-				pointsTable = losePointsTable
+			win := r.URL.Query().Get(winKey)
+			winOrLoss := "loss"
+			if win != "" {
+				winOrLoss = "win"
 			}
 
-			for _, pointsTableRow := range pointsTable {
-				if pointsDiff >= pointsTableRow.pointsDiffLowerBound {
-					pointsEarned := pointsTableRow.values[3]
-					fmt.Println(parseName(ranking.Name), pointsEarned)
-					totalPoints += pointsEarned
-					break
+			results = append(results, Result{opponentId: opponentId, result: winOrLoss})
+		}
+
+		totalPoints := 0
+		for _, result := range results {
+			for _, ranking := range rankingData.Data {
+				if ranking.Id != result.opponentId {
+					continue
+				}
+
+				opponentsPoints := ranking.Points
+				pointsDiff := mePoints - opponentsPoints
+
+				var pointsTable []PointsTable
+				if result.result == "win" {
+					pointsTable = winPointsTable
+				} else {
+					pointsTable = losePointsTable
+				}
+
+				for _, pointsTableRow := range pointsTable {
+					if pointsDiff >= pointsTableRow.pointsDiffLowerBound {
+						pointsEarned := pointsTableRow.values[3]
+						totalPoints += pointsEarned
+						break
+					}
 				}
 			}
 		}
-	}
 
-	fmt.Println(totalPoints)
+		people := []struct {
+			id   string
+			name string
+		}{}
+		for _, ranking := range rankingData.Data {
+			people = append(people,
+				struct {
+					id   string
+					name string
+				}{
+					id:   fmt.Sprintf("%d", ranking.Id),
+					name: parseName(ranking.Name),
+				},
+			)
+		}
+		sort.Slice(people, func(i, j int) bool {
+			firstName := strings.ToLower(people[i].name)
+			secondName := strings.ToLower(people[j].name)
+			return firstName < secondName
+		})
+
+		component := page(people, &totalPoints)
+		templ.Handler(component).ServeHTTP(w, r)
+	}
 }

@@ -1,0 +1,65 @@
+package main
+
+import "strconv"
+
+templ page(options []struct{id string; name string}, previousResult *int) {
+	<body>
+		<div>
+			if previousResult != nil {
+				<p>
+					Previous result: {strconv.Itoa(*previousResult)}
+				</p>
+			}
+			<form id="form">
+				<div id="formFields">
+					@opponent(options)
+				</div>
+				<button type="submit">
+					Submit
+				</button>
+			</form>
+			<button onClick="addOpponent();">
+				Add Opponent
+			</button>
+		</div>
+	</body>
+	<style>
+		body {
+			display: grid;
+			place-items: center;
+		}
+	</style>
+	<script type="text/javascript">
+		function addOpponent() {
+			const lastOpponent = document.getElementById("formFields").lastChild;
+			const clonedOpponent = lastOpponent.cloneNode(true);
+			const formFields = document.getElementById("formFields")
+			formFields.appendChild(clonedOpponent);
+			
+			const key = document.getElementById("formFields").children.length - 1;
+			const clonedElementInDom = document.getElementById("formFields").lastChild;
+			clonedElementInDom.querySelector("input[type=\"checkbox\"]").name = "win" + key;
+			clonedElementInDom.querySelector("input[type=\"checkbox\"]").id = "win" + key;
+			clonedElementInDom.querySelector("label").for = "win" + key;
+			clonedElementInDom.querySelector("select").name = "opponent" + key;
+			clonedElementInDom.querySelector("select").id = "opponent-select" + key;
+
+		}
+	</script>
+}
+
+templ dropdown(items []struct{id string; name string}) {
+	<select id="opponent-select0" form="form" name="opponent0">
+	for _, item := range items {
+			<option value={item.id}>{ item.name }</option>
+	}	
+	</select>
+}
+
+templ opponent(options []struct{id string; name string}) {
+	<fieldset id="opponent">
+		@dropdown(options)
+		<input type="checkbox" name="win0" id="win0" />
+		<label for="win0">Win?</label>
+	</fieldset>
+}
