@@ -10,22 +10,21 @@ func isItemDefaultSelected(item Ranking, me string) string {
 	return "false"
 }
 
-templ page(options []Ranking, previousResult int, me *string, tournamentOptions []TournamentOption, selectedTournament *string) {
+templ page(options []Ranking, previousResult int, me *string, tournamentOptions []TournamentOption, selectedTournament *string, hasResults bool) {
 	<body>
 		<div>
-			if previousResult != 0 {
+			if hasResults {
 				<p>
 					Previous result: {strconv.Itoa(previousResult)}
 				</p>
 			}
 			<form id="form">
-				<select id="me-select" form="form" name="me">
+				<input id="me-select" form="form" name="me" list="me-options" value={*me}>
+				<datalist id="me-options">
 				for _, item := range options {
-					<option value={strconv.Itoa(item.Id)} if strconv.Itoa(item.Id) == *me {
-						selected
-					} >{ parseName(item.Name) }</option>
+					<option value={strconv.Itoa(item.Id)}>{ parseName(item.Name) }</option>
 				}
-				</select>
+				</datalist>
 				<select id="tournament-select" form="form" name="tournament">
 				for _, tournament := range tournamentOptions {
 					<option value={tournament.Id} if tournament.Id == *selectedTournament {
@@ -60,21 +59,29 @@ templ page(options []Ranking, previousResult int, me *string, tournamentOptions 
 			
 			const key = document.getElementById("formFields").children.length - 1;
 			const clonedElementInDom = document.getElementById("formFields").lastChild;
-			clonedElementInDom.querySelector("input[type=\"checkbox\"]").name = "win" + key;
-			clonedElementInDom.querySelector("input[type=\"checkbox\"]").id = "win" + key;
+			
+			const checkbox = clonedElementInDom.querySelector("input[type=\"checkbox\"]");
+			checkbox.name = "win" + key;
+			checkbox.id = "win" + key;
+			checkbox.checked = false;
+
 			clonedElementInDom.querySelector("label").for = "win" + key;
-			clonedElementInDom.querySelector("select").name = "opponent" + key;
-			clonedElementInDom.querySelector("select").id = "opponent-select" + key;
+
+			const input = clonedElementInDom.querySelector("input[type=\"text\"]");
+			input.name = "opponent" + key;
+			input.id = "opponent-select" + key;
+			input.value = "";
 		}
 	</script>
 }
 
 templ dropdown(items []Ranking) {
-	<select id="opponent-select0" form="form" name="opponent0">
+	<input id="opponent-select0" list="opponent-choices" name="opponent0" form="form" type="text" />
+	<datalist id="opponent-choices">
 	for _, item := range items {
-			<option value={strconv.Itoa(item.Id)}>{ parseName(item.Name) }</option>
+			<option value={strconv.Itoa(item.Id)} label={parseName(item.Name)}></option>
 	}	
-	</select>
+	</datalist>
 }
 
 templ opponent(options []Ranking) {

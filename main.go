@@ -279,7 +279,7 @@ func handler(rankingData RankingData) http.HandlerFunc {
 			return strings.Compare(firstTournament.Name, secondTournament.Name) < 0
 		})
 
-		component := page(rankingData.Data, totalPoints, &meId, tournaments, &tournamentKey)
+		component := page(rankingData.Data, totalPoints, &meId, tournaments, &tournamentKey, len(results) != 0)
 		templ.Handler(component).ServeHTTP(w, r)
 	}
 }
