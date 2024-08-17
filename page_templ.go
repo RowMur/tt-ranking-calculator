@@ -18,7 +18,7 @@ func isItemDefaultSelected(item Ranking, me string) string {
 	return "false"
 }
 
-func page(options []Ranking, previousResult int, me *string, tournamentOptions []TournamentOption, selectedTournament *string, hasResults bool) templ.Component {
+func page(options []Ranking, previousResult int, me string, tournamentOptions []TournamentOption, selectedTournament *string, hasResults bool) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
@@ -54,19 +54,19 @@ func page(options []Ranking, previousResult int, me *string, tournamentOptions [
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</p>")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(" points</p>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<form id=\"form\"><input id=\"me-select\" form=\"form\" name=\"me\" list=\"me-options\" value=\"")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<form id=\"form\"><label for=\"me-select\">Me: </label> <input id=\"me-select\" form=\"form\" name=\"me\" list=\"me-options\" value=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var3 string
-		templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(*me)
+		templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(me)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `page.templ`, Line: 22, Col: 76}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `page.templ`, Line: 23, Col: 75}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 		if templ_7745c5c3_Err != nil {
@@ -82,33 +82,20 @@ func page(options []Ranking, previousResult int, me *string, tournamentOptions [
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var4 string
-			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(strconv.Itoa(item.Id))
+			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(parseName(item.Name))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `page.templ`, Line: 25, Col: 41}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `page.templ`, Line: 26, Col: 40}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\">")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			var templ_7745c5c3_Var5 string
-			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(parseName(item.Name))
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `page.templ`, Line: 25, Col: 65}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</option>")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\"></option>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</datalist> <select id=\"tournament-select\" form=\"form\" name=\"tournament\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</datalist> <label for=\"tournament-select\">Tournament: </label> <select id=\"tournament-select\" form=\"form\" name=\"tournament\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -117,12 +104,12 @@ func page(options []Ranking, previousResult int, me *string, tournamentOptions [
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var6 string
-			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(tournament.Id)
+			var templ_7745c5c3_Var5 string
+			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(tournament.Id)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `page.templ`, Line: 30, Col: 33}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `page.templ`, Line: 32, Col: 33}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -140,12 +127,12 @@ func page(options []Ranking, previousResult int, me *string, tournamentOptions [
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var7 string
-			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(tournament.Name)
+			var templ_7745c5c3_Var6 string
+			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(tournament.Name)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `page.templ`, Line: 32, Col: 25}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `page.templ`, Line: 34, Col: 25}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -154,7 +141,7 @@ func page(options []Ranking, previousResult int, me *string, tournamentOptions [
 				return templ_7745c5c3_Err
 			}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</select><div id=\"formFields\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</select><fieldset id=\"formFields\"><legend>Opponents</legend>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -162,7 +149,7 @@ func page(options []Ranking, previousResult int, me *string, tournamentOptions [
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div><button type=\"submit\">Submit</button></form><button onClick=\"addOpponent();\">Add Opponent</button></div></body><style>\n\t\tbody {\n\t\t\tdisplay: grid;\n\t\t\tplace-items: center;\n\t\t}\n\t</style><script type=\"text/javascript\">\n\t\tfunction addOpponent() {\n\t\t\tconst lastOpponent = document.getElementById(\"formFields\").lastChild;\n\t\t\tconst clonedOpponent = lastOpponent.cloneNode(true);\n\t\t\tconst formFields = document.getElementById(\"formFields\")\n\t\t\tformFields.appendChild(clonedOpponent);\n\t\t\t\n\t\t\tconst key = document.getElementById(\"formFields\").children.length - 1;\n\t\t\tconst clonedElementInDom = document.getElementById(\"formFields\").lastChild;\n\t\t\t\n\t\t\tconst checkbox = clonedElementInDom.querySelector(\"input[type=\\\"checkbox\\\"]\");\n\t\t\tcheckbox.name = \"win\" + key;\n\t\t\tcheckbox.id = \"win\" + key;\n\t\t\tcheckbox.checked = false;\n\n\t\t\tclonedElementInDom.querySelector(\"label\").for = \"win\" + key;\n\n\t\t\tconst input = clonedElementInDom.querySelector(\"input[type=\\\"text\\\"]\");\n\t\t\tinput.name = \"opponent\" + key;\n\t\t\tinput.id = \"opponent-select\" + key;\n\t\t\tinput.value = \"\";\n\t\t}\n\t</script>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</fieldset><button id=\"add-opponent-button\">Add Opponent</button> <button type=\"submit\">Submit</button></form></div></body><style>\n\t\tbody {\n\t\t\tdisplay: grid;\n\t\t\tplace-items: center;\n\t\t}\n\t</style><script type=\"text/javascript\">\n\t\tdocument.getElementById(\"add-opponent-button\").addEventListener(\"click\",\n\t\t\tfunction(event) {\n\t\t\t\tevent.preventDefault();\n\t\t\t\taddOpponent();\n\t\t\t}\n\t\t);\n\t\t\n\t\tfunction addOpponent() {\n\t\t\tconst lastOpponent = document.getElementById(\"formFields\").lastChild;\n\t\t\tconst clonedOpponent = lastOpponent.cloneNode(true);\n\t\t\tconst formFields = document.getElementById(\"formFields\")\n\t\t\tformFields.appendChild(clonedOpponent);\n\t\t\t\n\t\t\tconst key = document.getElementById(\"formFields\").children.length - 1;\n\t\t\tconst clonedElementInDom = document.getElementById(\"formFields\").lastChild;\n\t\t\t\n\t\t\tconst checkbox = clonedElementInDom.querySelector(\"input[type=\\\"checkbox\\\"]\");\n\t\t\tcheckbox.name = \"win\" + key;\n\t\t\tcheckbox.id = \"win\" + key;\n\t\t\tcheckbox.checked = true;\n\n\t\t\tclonedElementInDom.querySelector(\"label\").for = \"win\" + key;\n\n\t\t\tconst input = clonedElementInDom.querySelector(\"input[type=\\\"text\\\"]\");\n\t\t\tinput.name = \"opponent\" + key;\n\t\t\tinput.id = \"opponent-select\" + key;\n\t\t\tinput.value = \"\";\n\t\t}\n\t</script>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -183,9 +170,9 @@ func dropdown(items []Ranking) templ.Component {
 			}()
 		}
 		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var8 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var8 == nil {
-			templ_7745c5c3_Var8 = templ.NopComponent
+		templ_7745c5c3_Var7 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var7 == nil {
+			templ_7745c5c3_Var7 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<input id=\"opponent-select0\" list=\"opponent-choices\" name=\"opponent0\" form=\"form\" type=\"text\"> <datalist id=\"opponent-choices\">")
@@ -197,25 +184,12 @@ func dropdown(items []Ranking) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var9 string
-			templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(strconv.Itoa(item.Id))
+			var templ_7745c5c3_Var8 string
+			templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(parseName(item.Name))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `page.templ`, Line: 82, Col: 39}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `page.templ`, Line: 94, Col: 38}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" label=\"")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			var templ_7745c5c3_Var10 string
-			templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(parseName(item.Name))
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `page.templ`, Line: 82, Col: 68}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -245,12 +219,12 @@ func opponent(options []Ranking) templ.Component {
 			}()
 		}
 		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var11 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var11 == nil {
-			templ_7745c5c3_Var11 = templ.NopComponent
+		templ_7745c5c3_Var9 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var9 == nil {
+			templ_7745c5c3_Var9 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<fieldset id=\"opponent\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div id=\"opponent\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -258,7 +232,7 @@ func opponent(options []Ranking) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<input type=\"checkbox\" name=\"win0\" id=\"win0\"> <label for=\"win0\">Win?</label></fieldset>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<input type=\"checkbox\" name=\"win0\" id=\"win0\" checked> <label for=\"win0\">Win?</label></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

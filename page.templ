@@ -10,21 +10,23 @@ func isItemDefaultSelected(item Ranking, me string) string {
 	return "false"
 }
 
-templ page(options []Ranking, previousResult int, me *string, tournamentOptions []TournamentOption, selectedTournament *string, hasResults bool) {
+templ page(options []Ranking, previousResult int, me string, tournamentOptions []TournamentOption, selectedTournament *string, hasResults bool) {
 	<body>
 		<div>
 			if hasResults {
 				<p>
-					Previous result: {strconv.Itoa(previousResult)}
+					Previous result: {strconv.Itoa(previousResult)} points
 				</p>
 			}
 			<form id="form">
-				<input id="me-select" form="form" name="me" list="me-options" value={*me}>
+				<label for="me-select">Me: </label>
+				<input id="me-select" form="form" name="me" list="me-options" value={me}>
 				<datalist id="me-options">
 				for _, item := range options {
-					<option value={strconv.Itoa(item.Id)}>{ parseName(item.Name) }</option>
+					<option value={parseName(item.Name)}></option>
 				}
 				</datalist>
+				<label for="tournament-select">Tournament: </label>
 				<select id="tournament-select" form="form" name="tournament">
 				for _, tournament := range tournamentOptions {
 					<option value={tournament.Id} if tournament.Id == *selectedTournament {
@@ -32,16 +34,19 @@ templ page(options []Ranking, previousResult int, me *string, tournamentOptions 
 					} >{ tournament.Name }</option>
 				}
 				</select>
-				<div id="formFields">
-					@opponent(options)
-				</div>
+				<fieldset id="formFields">
+				<legend>
+					Opponents
+				</legend>
+				@opponent(options)
+				</fieldset>
+				<button id="add-opponent-button">
+					Add Opponent
+				</button>
 				<button type="submit">
 					Submit
 				</button>
 			</form>
-			<button onClick="addOpponent();">
-				Add Opponent
-			</button>
 		</div>
 	</body>
 	<style>
@@ -51,6 +56,13 @@ templ page(options []Ranking, previousResult int, me *string, tournamentOptions 
 		}
 	</style>
 	<script type="text/javascript">
+		document.getElementById("add-opponent-button").addEventListener("click",
+			function(event) {
+				event.preventDefault();
+				addOpponent();
+			}
+		);
+		
 		function addOpponent() {
 			const lastOpponent = document.getElementById("formFields").lastChild;
 			const clonedOpponent = lastOpponent.cloneNode(true);
@@ -63,7 +75,7 @@ templ page(options []Ranking, previousResult int, me *string, tournamentOptions 
 			const checkbox = clonedElementInDom.querySelector("input[type=\"checkbox\"]");
 			checkbox.name = "win" + key;
 			checkbox.id = "win" + key;
-			checkbox.checked = false;
+			checkbox.checked = true;
 
 			clonedElementInDom.querySelector("label").for = "win" + key;
 
@@ -79,15 +91,15 @@ templ dropdown(items []Ranking) {
 	<input id="opponent-select0" list="opponent-choices" name="opponent0" form="form" type="text" />
 	<datalist id="opponent-choices">
 	for _, item := range items {
-			<option value={strconv.Itoa(item.Id)} label={parseName(item.Name)}></option>
+			<option value={parseName(item.Name)}></option>
 	}	
 	</datalist>
 }
 
 templ opponent(options []Ranking) {
-	<fieldset id="opponent">
+	<div id="opponent">
 		@dropdown(options)
-		<input type="checkbox" name="win0" id="win0" />
+		<input type="checkbox" name="win0" id="win0" checked />
 		<label for="win0">Win?</label>
-	</fieldset>
+	</div>
 }

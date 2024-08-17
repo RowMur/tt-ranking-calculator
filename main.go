@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"os"
 	"sort"
-	"strconv"
 	"strings"
 
 	"github.com/a-h/templ"
@@ -197,10 +196,16 @@ func handler(rankingData RankingData) http.HandlerFunc {
 			if opponent == "" {
 				break
 			}
-			opponentId, err := strconv.Atoi(opponent)
-			if err != nil {
-				w.Write([]byte(fmt.Sprintf("failed to parse opponent ID: %v", err)))
-				return
+
+			opponentId := -1
+			for _, ranking := range rankingData.Data {
+				if parseName(ranking.Name) == opponent {
+					opponentId = ranking.Id
+					break
+				}
+			}
+			if opponentId == -1 {
+				continue
 			}
 
 			win := r.URL.Query().Get(winKey)
@@ -212,10 +217,10 @@ func handler(rankingData RankingData) http.HandlerFunc {
 			results = append(results, Result{opponentId: opponentId, result: winOrLoss})
 		}
 
-		meId := r.URL.Query().Get("me")
+		me := r.URL.Query().Get("me")
 		mePoints := 0
 		for _, ranking := range rankingData.Data {
-			if strconv.Itoa(ranking.Id) == meId {
+			if parseName(ranking.Name) == me {
 				mePoints = ranking.Points
 				break
 			}
@@ -279,7 +284,7 @@ func handler(rankingData RankingData) http.HandlerFunc {
 			return strings.Compare(firstTournament.Name, secondTournament.Name) < 0
 		})
 
-		component := page(rankingData.Data, totalPoints, &meId, tournaments, &tournamentKey, len(results) != 0)
+		component := page(rankingData.Data, totalPoints, me, tournaments, &tournamentKey, len(results) != 0)
 		templ.Handler(component).ServeHTTP(w, r)
 	}
 }
