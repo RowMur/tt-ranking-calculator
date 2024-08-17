@@ -69,7 +69,7 @@ templ page(options []Ranking, previousResult int, me string, tournamentOptions [
 			const formFields = document.getElementById("formFields")
 			formFields.appendChild(clonedOpponent);
 			
-			const key = document.getElementById("formFields").children.length - 1;
+			const key = document.getElementById("formFields").children.length - 2;
 			const clonedElementInDom = document.getElementById("formFields").lastChild;
 			
 			const checkbox = clonedElementInDom.querySelector("input[type=\"checkbox\"]");
