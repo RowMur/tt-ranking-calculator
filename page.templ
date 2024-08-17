@@ -40,8 +40,8 @@ templ page(options []Ranking, previousResult int, me string, tournamentOptions [
 				</legend>
 				@opponent(options)
 				</fieldset>
-				<button id="add-opponent-button">
-					Add Opponent
+				<button id="add-opponent-button" type="button">
+					Add opponent
 				</button>
 				<button type="submit">
 					Submit
@@ -62,7 +62,7 @@ templ page(options []Ranking, previousResult int, me string, tournamentOptions [
 				addOpponent();
 			}
 		);
-		
+
 		function addOpponent() {
 			const lastOpponent = document.getElementById("formFields").lastChild;
 			const clonedOpponent = lastOpponent.cloneNode(true);
