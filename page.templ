@@ -11,51 +11,91 @@ func isItemDefaultSelected(item Ranking, me string) string {
 }
 
 templ page(options []Ranking, previousResult int, me string, tournamentOptions []TournamentOption, selectedTournament *string, hasResults bool) {
-	<body>
-		<div>
+	<!DOCTYPE html>
+	<html lang="en">
+		<head>
+			<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous"/>
+			<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+			<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+		</head>
+		<body>
 			if hasResults {
-				<p>
-					Previous result: {strconv.Itoa(previousResult)} points
-				</p>
+				@resultsPage(previousResult)
+			} else {
+				<form id="form">
+					<div class="mb-3">
+						<label for="me-select" class="form-label">You</label>
+						<select id="me-select" form="form" name="me" list="me-options" class="form-control">
+							for _, item := range options {
+								<option
+									value={ parseName(item.Name) }
+									if parseName(item.Name) == me {
+										selected
+									}
+								>{ parseName(item.Name) }</option>
+							}
+						</select>
+					</div>
+					<div class="mb-3">
+						<label for="tournament-select" class="form-label">Tournament</label>
+						<select id="tournament-select" form="form" name="tournament" class="form-control">
+							for _, tournament := range tournamentOptions {
+								<option
+									value={ tournament.Id }
+									if tournament.Id == *selectedTournament {
+										selected
+									}
+								>{ tournament.Name }</option>
+							}
+						</select>
+					</div>
+					<fieldset id="formFields">
+						<legend>
+							Opponents
+						</legend>
+						@opponent(options)
+					</fieldset>
+					<button id="add-opponent-button" type="button" class="btn btn-secondary">
+						Add opponent
+					</button>
+					<button type="submit" class="btn btn-primary">
+						Submit
+					</button>
+				</form>
 			}
-			<form id="form">
-				<label for="me-select">Me: </label>
-				<input id="me-select" form="form" name="me" list="me-options" value={me}>
-				<datalist id="me-options">
-				for _, item := range options {
-					<option value={parseName(item.Name)}></option>
-				}
-				</datalist>
-				<label for="tournament-select">Tournament: </label>
-				<select id="tournament-select" form="form" name="tournament">
-				for _, tournament := range tournamentOptions {
-					<option value={tournament.Id} if tournament.Id == *selectedTournament {
-						selected
-					} >{ tournament.Name }</option>
-				}
-				</select>
-				<fieldset id="formFields">
-				<legend>
-					Opponents
-				</legend>
-				@opponent(options)
-				</fieldset>
-				<button id="add-opponent-button" type="button">
-					Add opponent
-				</button>
-				<button type="submit">
-					Submit
-				</button>
-			</form>
-		</div>
-	</body>
-	<style>
+		</body>
+		<style>
 		body {
 			display: grid;
 			place-items: center;
+			height: 100vh;
 		}
+
+		form {
+			width: 80%;
+			min-width: 0px;
+		}
+
+		p {
+			text-align: center;
+		}
+
+		.grid {
+			display: grid;
+			place-items: center;
+		}
+
+		.opponent {
+			display: flex;
+		}
+
+		.win {
+			margin-left: 1rem;
+			min-width: 60px;
+		}
+		
 	</style>
-	<script type="text/javascript">
+		<script type="text/javascript">
 		document.getElementById("add-opponent-button").addEventListener("click",
 			function(event) {
 				event.preventDefault();
@@ -79,27 +119,43 @@ templ page(options []Ranking, previousResult int, me string, tournamentOptions [
 
 			clonedElementInDom.querySelector("label").for = "win" + key;
 
-			const input = clonedElementInDom.querySelector("input[type=\"text\"]");
+			const input = clonedElementInDom.querySelector("select");
 			input.name = "opponent" + key;
 			input.id = "opponent-select" + key;
-			input.value = "";
 		}
 	</script>
+	</html>
 }
 
 templ dropdown(items []Ranking) {
-	<input id="opponent-select0" list="opponent-choices" name="opponent0" form="form" type="text" />
-	<datalist id="opponent-choices">
-	for _, item := range items {
-			<option value={parseName(item.Name)}></option>
-	}	
-	</datalist>
+	<select id="opponent-select0" name="opponent0" form="form" type="text" class="form-control">
+		for _, item := range items {
+			<option value={ parseName(item.Name) }>{ parseName(item.Name) }</option>
+		}
+	</select>
 }
 
 templ opponent(options []Ranking) {
-	<div id="opponent">
-		@dropdown(options)
-		<input type="checkbox" name="win0" id="win0" checked />
-		<label for="win0">Win?</label>
+	<div id="opponent" class="mb-3 opponent">
+		<div class="">
+			@dropdown(options)
+		</div>
+		<div class="grid win">
+			<div>
+				<input class="form-check-input" type="checkbox" name="win0" id="win0" checked/>
+				<label for="win0" class="form-check-label">Win?</label>
+			</div>
+		</div>
+	</div>
+}
+
+templ resultsPage(points int) {
+	<div>
+		<p>
+			{ strconv.Itoa(points) } points
+		</p>
+		<p>
+			<a href="/">Back</a>
+		</p>
 	</div>
 }
