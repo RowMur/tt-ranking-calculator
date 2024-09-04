@@ -181,18 +181,34 @@ func main() {
 
 	http.Handle("/favicon.ico", http.NotFoundHandler())
 	http.Handle("/", handler(rankingData))
+	http.Handle("/calculate", calculateHandler(rankingData))
 	fmt.Println("Listening on :8080")
 	http.ListenAndServe(":8080", nil)
 }
 
-func handler(rankingData RankingData) http.HandlerFunc {
+type CalcResponse struct {
+	Points int `json:"points"`
+}
+
+func calculateHandler(rankingData RankingData) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost {
+			w.WriteHeader(http.StatusMethodNotAllowed)
+			return
+		}
+
 		results := []Result{}
+		err := r.ParseForm()
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+
 		for i := 0; true; i++ {
 			opponentKey := fmt.Sprintf("opponent%d", i)
 			winKey := fmt.Sprintf("win%d", i)
 
-			opponent := r.URL.Query().Get(opponentKey)
+			opponent := r.Form.Get(opponentKey)
 			if opponent == "" {
 				break
 			}
@@ -208,7 +224,7 @@ func handler(rankingData RankingData) http.HandlerFunc {
 				continue
 			}
 
-			win := r.URL.Query().Get(winKey)
+			win := r.PostForm.Get(winKey)
 			winOrLoss := "loss"
 			if win != "" {
 				winOrLoss = "win"
@@ -217,7 +233,7 @@ func handler(rankingData RankingData) http.HandlerFunc {
 			results = append(results, Result{opponentId: opponentId, result: winOrLoss})
 		}
 
-		me := r.URL.Query().Get("me")
+		me := r.PostForm.Get("me")
 		mePoints := 0
 		for _, ranking := range rankingData.Data {
 			if parseName(ranking.Name) == me {
@@ -226,7 +242,7 @@ func handler(rankingData RankingData) http.HandlerFunc {
 			}
 		}
 
-		tournamentKey := r.URL.Query().Get("tournament")
+		tournamentKey := r.PostForm.Get("tournament")
 		valueIndex := getValIndexFromMultiplier(tournamentOptions[tournamentKey].Multiplier)
 
 		totalPoints := 0
@@ -259,6 +275,17 @@ func handler(rankingData RankingData) http.HandlerFunc {
 				}
 			}
 		}
+		data := CalcResponse{
+			Points: totalPoints,
+		}
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusCreated)
+		json.NewEncoder(w).Encode(data)
+	}
+}
+
+func handler(rankingData RankingData) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
 
 		sort.Slice(rankingData.Data, func(i, j int) bool {
 			firstName := strings.ToLower(rankingData.Data[i].Name)
@@ -284,7 +311,7 @@ func handler(rankingData RankingData) http.HandlerFunc {
 			return strings.Compare(firstTournament.Name, secondTournament.Name) < 0
 		})
 
-		component := page(rankingData.Data, totalPoints, me, tournaments, &tournamentKey, len(results) != 0)
+		component := page(rankingData.Data, tournaments)
 		templ.Handler(component).ServeHTTP(w, r)
 	}
 }

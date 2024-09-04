@@ -10,7 +10,7 @@ func isItemDefaultSelected(item Ranking, me string) string {
 	return "false"
 }
 
-templ page(options []Ranking, previousResult int, me string, tournamentOptions []TournamentOption, selectedTournament *string, hasResults bool) {
+templ page(options []Ranking, tournamentOptions []TournamentOption) {
 	<!DOCTYPE html>
 	<html lang="en">
 		<head>
@@ -19,20 +19,13 @@ templ page(options []Ranking, previousResult int, me string, tournamentOptions [
 			<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 		</head>
 		<body>
-			if hasResults {
-				@resultsPage(previousResult)
-			} else {
+			<div>
 				<form id="form">
 					<div class="mb-3">
 						<label for="me-select" class="form-label">You</label>
 						<select id="me-select" form="form" name="me" list="me-options" class="form-control">
 							for _, item := range options {
-								<option
-									value={ parseName(item.Name) }
-									if parseName(item.Name) == me {
-										selected
-									}
-								>{ parseName(item.Name) }</option>
+								<option value={ parseName(item.Name) }>{ parseName(item.Name) }</option>
 							}
 						</select>
 					</div>
@@ -40,12 +33,7 @@ templ page(options []Ranking, previousResult int, me string, tournamentOptions [
 						<label for="tournament-select" class="form-label">Tournament</label>
 						<select id="tournament-select" form="form" name="tournament" class="form-control">
 							for _, tournament := range tournamentOptions {
-								<option
-									value={ tournament.Id }
-									if tournament.Id == *selectedTournament {
-										selected
-									}
-								>{ tournament.Name }</option>
+								<option value={ tournament.Id }>{ tournament.Name }</option>
 							}
 						</select>
 					</div>
@@ -62,7 +50,12 @@ templ page(options []Ranking, previousResult int, me string, tournamentOptions [
 						Submit
 					</button>
 				</form>
-			}
+				<div class="hidden" id="points-wrapper">
+					<p>
+						Points: <span id="points">0</span>
+					</p>
+				</div>
+			</div>
 		</body>
 		<style>
 		body {
@@ -72,8 +65,15 @@ templ page(options []Ranking, previousResult int, me string, tournamentOptions [
 		}
 
 		form {
-			width: 80%;
+			width: 100%;
 			min-width: 0px;
+			margin: 0 auto;
+		}
+
+		@media (max-width: 768px) {
+			form {
+				width: 80%;
+			}
 		}
 
 		p {
@@ -92,6 +92,14 @@ templ page(options []Ranking, previousResult int, me string, tournamentOptions [
 		.win {
 			margin-left: 1rem;
 			min-width: 60px;
+		}
+
+		.hidden {
+			display: none;
+		}
+
+		#points-wrapper {
+			margin-top: 1rem;
 		}
 		
 	</style>
@@ -123,6 +131,23 @@ templ page(options []Ranking, previousResult int, me string, tournamentOptions [
 			input.name = "opponent" + key;
 			input.id = "opponent-select" + key;
 		}
+
+		const form = document.getElementById("form");
+		form.addEventListener("submit", async (e) => {
+			event.preventDefault();
+			const data = new FormData(e.target);
+			let resp = await fetch("/calculate", {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/x-www-form-urlencoded",
+				},
+				body: new URLSearchParams(data),
+			});
+
+			let res = await resp.json();
+			document.getElementById("points").innerText = res.points;
+			document.getElementById("points-wrapper").classList.remove("hidden");
+		})
 	</script>
 	</html>
 }
@@ -146,16 +171,5 @@ templ opponent(options []Ranking) {
 				<label for="win0" class="form-check-label">Win?</label>
 			</div>
 		</div>
-	</div>
-}
-
-templ resultsPage(points int) {
-	<div>
-		<p>
-			{ strconv.Itoa(points) } points
-		</p>
-		<p>
-			<a href="/">Back</a>
-		</p>
 	</div>
 }
