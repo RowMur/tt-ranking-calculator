@@ -14,9 +14,9 @@ import (
 const dataFile = "data.json"
 
 type Ranking struct {
-	Id     int    `json:"id"`
-	Name   string `json:"name"`
-	Points int    `json:"points"`
+	Id     int         `json:"id"`
+	Name   interface{} `json:"name"`
+	Points int         `json:"points"`
 }
 
 type RankingData struct {
@@ -159,8 +159,12 @@ var tournamentOptions = map[string]TournamentOption{
 	"1-star":                          {Id: "1-star", Name: "1 Star Open Tournaments", Multiplier: 0.75},
 }
 
-func parseName(name string) string {
-	nameSplitByBracket := strings.Split(name, "(")
+func parseName(name interface{}) string {
+	stringName, ok := name.(string)
+	if !ok {
+		return ""
+	}
+	nameSplitByBracket := strings.Split(stringName, "(")
 	trimmedName := strings.TrimSpace(nameSplitByBracket[0])
 	return trimmedName
 }
@@ -288,10 +292,21 @@ func handler(rankingData RankingData) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
 		sort.Slice(rankingData.Data, func(i, j int) bool {
-			firstName := strings.ToLower(rankingData.Data[i].Name)
-			secondName := strings.ToLower(rankingData.Data[j].Name)
+			firstName := strings.ToLower(parseName(rankingData.Data[i].Name))
+			secondName := strings.ToLower(parseName(rankingData.Data[j].Name))
 			return firstName < secondName
 		})
+
+		filteredData := []Ranking{}
+		for _, ranking := range rankingData.Data {
+			stringName, ok := ranking.Name.(string)
+			if !ok || stringName == "" {
+				continue
+			}
+
+			filteredData = append(filteredData, ranking)
+		}
+		rankingData.Data = filteredData
 
 		tournaments := []TournamentOption{}
 		for _, tournament := range tournamentOptions {
